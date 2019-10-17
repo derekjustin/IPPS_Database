@@ -16,9 +16,11 @@ class ipps:
     '''
     
     def getCSVfilefromCwD():
+        
         # Find the current working directory 
         PATH = os.getcwd()   
         EXT = "*.csv"
+        
         # List of all csv files
         all_csv_files = [file
             for path, subdir, files in os.walk(PATH)
@@ -42,6 +44,28 @@ class ipps:
         csvList = ipps.getCSVfilefromCwD()
 
         raw_df = pd.read_csv( csvList[0] ) 
+
+        # Copy initial columns over to the frame that are already in 2nd NF
+        SecondNF_df = raw_df.loc[:,['Provider Id',
+                                    'Provider Name',
+                                    'Provider Name', 
+                                    'Provider Street Address', 
+                                    'Provider City', 
+                                    'Provider State',
+                                    'Provider Zip Code',
+                                    ' Total Discharges ',
+                                    ' Average Covered Charges ',
+                                    ' Average Total Payments ',
+                                    'Average Medicare Payments'
+                                    ]]
+        # Clean the column names and eliminate white spaces from original import
+        SecondNF_df.rename(columns = {' Total Discharges ' :'Total Discharges', 
+                                      ' Average Covered Charges ':'ODI', 
+                                      ' Average Total Payments ':'Average Total Payments'}, inplace = True)
+        
+        # Split the selected columns to meet 2nd normal form                     
+        SecondNF_df[['DRG Key','DRG Description']] = raw_df['DRG Definition'].str.split(' - ',expand=True)
+        SecondNF_df[['Referral Region State','Hospital Referral Region Description']] = raw_df['Hospital Referral Region Description'].str.split(' - ',expand=True)
 
         #TODO: We need to break apart the pandas dataframe into separate 
                 # columns determined by the 3rd normal form.  I think we should 
@@ -92,7 +116,7 @@ class ipps:
             conn.close()
 
 
-test = ipps.loadCSVtoDf()
+#test = ipps.loadCSVtoDf()
 
 
 

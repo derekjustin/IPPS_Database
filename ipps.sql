@@ -14,10 +14,15 @@ CREATE TABLE Providers (
     providerCity VARCHAR(100) NOT NULL,
     providerState CHAR(2) NOT NULL,
     providerZip CHAR(5) NOT NULL,
-    referralState CHAR(2) NOT NULL,
-    referralCity VARCHAR(100) NOT NULL,
     totalDischarges INT NOT NULL
      );
+
+-- DRG Key
+-- DRG Description
+
+-- Referral Region State 
+-- Hospital Referral Region Description'
+
 
 -- create users
 CREATE USER IF NOT EXISTS 'ipps' IDENTIFIED BY '12345';
