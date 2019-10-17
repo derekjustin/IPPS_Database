@@ -66,8 +66,8 @@ class ipps:
                                       'Provider City':'providerCity',
                                       'Provider State':'providerState',
                                       'Provider Zip Code':'providerZipCode',
-                                      ' Total Discharges ':'totalDischarges ',
-                                      ' Average Covered Charges ':'averageCoveredCharges ',
+                                      ' Total Discharges ':'totalDischarges',
+                                      ' Average Covered Charges ':'averageCoveredCharges',
                                       ' Average Total Payments ':'averageTotalPayments',
                                       'Average Medicare Payments':'averageMedicarePayments'
                                       }, inplace = True)
@@ -80,7 +80,7 @@ class ipps:
                 # columns determined by the 3rd normal form.  I think we should 
                 # create separate functions to break apart the frame to meet our 
                 # rubric of 3rd NF
-        return raw_df
+        return SecondNF_df
 
 
 
@@ -96,15 +96,22 @@ class ipps:
             #TODO: WE MAY NEED TO SAVE PW IN SOME OTHER FILE NEED TO ASK HIM THE QUESTION
             password = '12345'
     
+            # Get 2nd NF dataFrame
+            data = ipps.loadCSVtoDf()
             # connects to the database
 #            conn = pymysql.connect(host = server, user = user, password = password, db = database)
-            engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}".format(user="root",
+            engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}".format(user="ipps",
                                pw="12345",
-                               db="ipps"))   
+                               db="ipps")) 
+            
+            
+    
+            data.to_sql('Providers', con = engine, if_exists = 'append', chunksize = 1000)
+            
             if (engine):
                 print('Connection to MySQL database', database, 'was successful!')
     
-    
+            
             #GOOD STUFF TO KEEP
     
             # new row
