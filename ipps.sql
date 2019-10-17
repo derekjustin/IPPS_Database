@@ -17,8 +17,8 @@ CREATE TABLE Providers (
     totalDischarges INT NOT NULL
      );
 
--- dRG Key
--- dRG Description
+-- dRgKey
+-- dRgDescription
 
 -- referralRegionState 
 -- hospitalReferralRegionDescription'

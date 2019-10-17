@@ -2,7 +2,7 @@ import pymysql
 import os
 from glob import glob
 import pandas as pd
-
+from sqlalchemy import create_engine
 
 class ipps:
 
@@ -97,9 +97,11 @@ class ipps:
             password = '12345'
     
             # connects to the database
-            conn = pymysql.connect(host = server, user = user, password = password, db = database)
-    
-            if (conn):
+#            conn = pymysql.connect(host = server, user = user, password = password, db = database)
+            engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}".format(user="root",
+                               pw="12345",
+                               db="ipps"))   
+            if (engine):
                 print('Connection to MySQL database', database, 'was successful!')
     
     
@@ -120,12 +122,14 @@ class ipps:
             #    print(id, name, sal)
     
     
+    
+            
             # closes the connection
             print('Bye!')
-            conn.close()
+            #engine.close()
 
 
-#test = ipps.loadCSVtoDf()
+ipps.pushToSQL()
 
 
 
