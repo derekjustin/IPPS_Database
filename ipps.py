@@ -59,13 +59,22 @@ class ipps:
                                     'Average Medicare Payments'
                                     ]]
         # Clean the column names and eliminate white spaces from original import
-        SecondNF_df.rename(columns = {' Total Discharges ' :'Total Discharges', 
-                                      ' Average Covered Charges ':'ODI', 
-                                      ' Average Total Payments ':'Average Total Payments'}, inplace = True)
+        # Match the column names of the sql table names    
+        SecondNF_df.rename(columns = {'Provider Id' :'providerId', 
+                                      'Provider Name':'providerName', 
+                                      'Provider Street Address':'providerStreetAddress',
+                                      'Provider City':'providerCity',
+                                      'Provider State':'providerState',
+                                      'Provider Zip Code':'providerZipCode',
+                                      ' Total Discharges ':'totalDischarges ',
+                                      ' Average Covered Charges ':'averageCoveredCharges ',
+                                      ' Average Total Payments ':'Average Total Payments',
+                                      'Average Medicare Payments':'averageMedicarePayments'
+                                      }, inplace = True)
         
         # Split the selected columns to meet 2nd normal form                     
-        SecondNF_df[['DRG Key','DRG Description']] = raw_df['DRG Definition'].str.split(' - ',expand=True)
-        SecondNF_df[['Referral Region State','Hospital Referral Region Description']] = raw_df['Hospital Referral Region Description'].str.split(' - ',expand=True)
+        SecondNF_df[['dRgKey','dRgDescription']] = raw_df['DRG Definition'].str.split(' - ',expand=True)
+        SecondNF_df[['referralRegionState','hospitalReferralRegionDescription']] = raw_df['Hospital Referral Region Description'].str.split(' - ',expand=True)
 
         #TODO: We need to break apart the pandas dataframe into separate 
                 # columns determined by the 3rd normal form.  I think we should 
