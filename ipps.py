@@ -84,11 +84,6 @@ class ipps:
 
 
 
-
-
-    #TODO: This function does not work but will be the fianl execution function 
-            # to create the tables for SQL
-            # DEREK: I just copied and pasted a bunch of stuff the function should do.  
     def pushToSQL():
             server = 'localhost'
             database = 'ipps'
@@ -100,13 +95,17 @@ class ipps:
             data = ipps.loadCSVtoDf()
             # connects to the database
 #            conn = pymysql.connect(host = server, user = user, password = password, db = database)
+            
+            # Create a engine to connect to mySQL
             engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}".format(user="ipps",
                                pw="12345",
                                db="ipps")) 
             
             
-    
+            # Create a SQL table named Providers from the 2ndNF pandas dataFrame
             data.to_sql('Providers', con = engine, if_exists = 'append', chunksize = 1000)
+            
+            #TODO: Not Sure if I have to close the connection of the engine i.e engine.close()
             
             if (engine):
                 print('Connection to MySQL database', database, 'was successful!')
