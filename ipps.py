@@ -68,7 +68,7 @@ class ipps:
                                       'Provider Zip Code':'providerZipCode',
                                       ' Total Discharges ':'totalDischarges ',
                                       ' Average Covered Charges ':'averageCoveredCharges ',
-                                      ' Average Total Payments ':'Average Total Payments',
+                                      ' Average Total Payments ':'averageTotalPayments',
                                       'Average Medicare Payments':'averageMedicarePayments'
                                       }, inplace = True)
         
