@@ -40,6 +40,18 @@ CREATE TABLE drg (
     dRgDescription VARCHAR(120) NOT NULL
     );
 
+CREATE TABLE ProviderCondCoverage (
+    providerID INT NOT NULL, 
+    dRgKey INT NOT NULL,
+    totalDischarges INT NOT NULL,
+    averageCoveredCharges DECIMAL(20,3) NOT NULL,
+    averageTotalPayments DECIMAL(20,3) NOT NULL,
+    averageMedicarePayments DECIMAL(20,3) NOT NULL,
+    PRIMARY KEY (providerID,dRgKey),
+    FOREIGN KEY (providerID) REFERENCES providers(providerID),
+    FOREIGN KEY (dRgKey) REFERENCES drg(dRgKey)
+    );
+
 -- dRgKey
 -- dRgDescription
 

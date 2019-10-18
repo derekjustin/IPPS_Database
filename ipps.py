@@ -43,10 +43,10 @@ class ipps:
         # Get the list of all CSVs from current working directory
         csvList = ipps.getCSVfilefromCwD()
 
-        raw_df = pd.read_csv( csvList[0] ) 
+        raw_input = pd.read_csv( csvList[0] ) 
 
         # Copy initial columns over to the frame that are already in 2nd NF
-        SecondNF_df = raw_df.loc[:,['Provider Id',
+        raw_df = raw_input.loc[:,['Provider Id',
                                     'Provider Name',
                                     'Provider Street Address', 
                                     'Provider City', 
@@ -59,7 +59,7 @@ class ipps:
                                     ]]
         # Clean the column names and eliminate white spaces from original import
         # Match the column names of the sql table names    
-        SecondNF_df.rename(columns = {'Provider Id' :'providerId', 
+        raw_df.rename(columns = {'Provider Id' :'providerId', 
                                       'Provider Name':'providerName', 
                                       'Provider Street Address':'providerStreetAddress',
                                       'Provider City':'providerCity',
@@ -72,14 +72,14 @@ class ipps:
                                       }, inplace = True)
         
         # Split the selected columns to meet 2nd normal form                     
-        SecondNF_df[['dRgKey','dRgDescription']] = raw_df['DRG Definition'].str.split(' - ',expand=True)
-        SecondNF_df[['referralRegionState','referralRegionDescription']] = raw_df['Hospital Referral Region Description'].str.split(' - ',expand=True)
+        raw_df[['dRgKey','dRgDescription']] = raw_input['DRG Definition'].str.split(' - ',expand=True)
+        raw_df[['referralRegionState','referralRegionDescription']] = raw_input['Hospital Referral Region Description'].str.split(' - ',expand=True)
 
         #TODO: We need to break apart the pandas dataframe into separate 
                 # columns determined by the 3rd normal form.  I think we should 
                 # create separate functions to break apart the frame to meet our 
                 # rubric of 3rd NF
-        return SecondNF_df
+        return raw_df
 
     def getProvidersDF(raw_df):        
         providers_df = raw_df.loc[:,['providerId',
@@ -99,6 +99,16 @@ class ipps:
                                 ]]
         return drg_df.drop_duplicates()
 
+    def getProviderCondCoverage(raw_df):
+        provider_cond_coverage = raw_df.loc[:,['providerId',
+                                                'dRgKey',
+                                                'totalDischarges',
+                                                'averageCoveredCharges',
+                                                'averageTotalPayments',
+                                                'averageMedicarePayments'
+                                                ]]
+        return provider_cond_coverage.drop_duplicates()
+
     def pushToSQL():
             server = 'localhost'
             database = 'ipps'
@@ -110,6 +120,7 @@ class ipps:
             raw_df = ipps.loadCSVtoDf()            
             providers_df = ipps.getProvidersDF(raw_df)
             drg_df = ipps.getdRgDF(raw_df)
+            provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
             
             # Create a engine to connect to mySQL
             engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}".format(user="ipps",
@@ -121,6 +132,7 @@ class ipps:
             raw_df.to_sql('raw_df', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
             providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
             drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+            provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
 
             
             #TODO: Not Sure if I have to close the connection of the engine i.e engine.close()
