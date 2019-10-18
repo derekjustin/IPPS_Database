@@ -73,7 +73,7 @@ class ipps:
         
         # Split the selected columns to meet 2nd normal form                     
         SecondNF_df[['dRgKey','dRgDescription']] = raw_df['DRG Definition'].str.split(' - ',expand=True)
-        SecondNF_df[['referralRegionState','hospitalReferralRegionDescription']] = raw_df['Hospital Referral Region Description'].str.split(' - ',expand=True)
+        SecondNF_df[['referralRegionState','referralRegionDescription']] = raw_df['Hospital Referral Region Description'].str.split(' - ',expand=True)
 
         #TODO: We need to break apart the pandas dataframe into separate 
                 # columns determined by the 3rd normal form.  I think we should 
@@ -87,9 +87,11 @@ class ipps:
                                     'providerStreetAddress', 
                                     'providerCity', 
                                     'providerState',
-                                    'providerZipCode'
+                                    'providerZipCode',
+                                    'referralRegionState',
+                                    'referralRegionDescription'
                                     ]]
-        return providers_df
+        return providers_df.drop_duplicates()
 
     def pushToSQL():
             server = 'localhost'

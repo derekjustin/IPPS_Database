@@ -21,16 +21,23 @@ CREATE TABLE raw_df (
     dRgKey INT NOT NULL,
     dRgDescription VARCHAR(120) NOT NULL,
     referralRegionState CHAR(5) NOT NULL,
-    hospitalReferralRegionDescription VARCHAR(120) NOT NULL
+    referralRegionDescription VARCHAR(120) NOT NULL
     );
 
 CREATE TABLE providers (
-    providerID INT NOT NULL, 
+    providerID INT PRIMARY KEY NOT NULL, 
     providerName VARCHAR(100) NOT NULL, 
     providerStreetAddress VARCHAR(120) NOT NULL,
     providerCity VARCHAR(100) NOT NULL,
     providerState CHAR(2) NOT NULL,
-    providerZipCode CHAR(5) NOT NULL
+    providerZipCode CHAR(5) NOT NULL,
+    referralRegionState CHAR(5) NOT NULL,
+    referralRegionDescription VARCHAR(120) NOT NULL
+    );
+
+CREATE TABLE drg (
+    dRgKey INT PRIMARY KEY NOT NULL,
+    dRgDescription VARCHAR(120) NOT NULL
     );
 
 -- dRgKey
