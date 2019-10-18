@@ -93,6 +93,12 @@ class ipps:
                                     ]]
         return providers_df.drop_duplicates()
 
+    def getdRgDF(raw_df):
+        drg_df = raw_df.loc[:,['dRgKey',
+                                'dRgDescription'
+                                ]]
+        return drg_df.drop_duplicates()
+
     def pushToSQL():
             server = 'localhost'
             database = 'ipps'
@@ -101,11 +107,9 @@ class ipps:
             password = '12345'
     
             # Get 2nd NF dataFrame
-            raw_df = ipps.loadCSVtoDf()
-            # connects to the database
-#            conn = pymysql.connect(host = server, user = user, password = password, db = database)
-            
-            providers = ipps.getProvidersDF(raw_df)
+            raw_df = ipps.loadCSVtoDf()            
+            providers_df = ipps.getProvidersDF(raw_df)
+            drg_df = ipps.getdRgDF(raw_df)
             
             # Create a engine to connect to mySQL
             engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}".format(user="ipps",
@@ -115,8 +119,9 @@ class ipps:
             
             # Create a SQL table named Providers from the 2ndNF pandas dataFrame
             raw_df.to_sql('raw_df', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+            providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+            drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
 
-            providers.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
             
             #TODO: Not Sure if I have to close the connection of the engine i.e engine.close()
             
