@@ -7,7 +7,7 @@ CREATE DATABASE ipps;
 USE ipps;
 
 -- We need to 3rd normalize the 12 csv columns and create tables
-CREATE TABLE Providers (
+CREATE TABLE raw_df (
     providerID INT NOT NULL, 
     providerName VARCHAR(100) NOT NULL, 
     providerStreetAddress VARCHAR(120) NOT NULL,
@@ -22,7 +22,16 @@ CREATE TABLE Providers (
     dRgDescription VARCHAR(120) NOT NULL,
     referralRegionState CHAR(5) NOT NULL,
     hospitalReferralRegionDescription VARCHAR(120) NOT NULL
-     );
+    );
+
+CREATE TABLE providers (
+    providerID INT NOT NULL, 
+    providerName VARCHAR(100) NOT NULL, 
+    providerStreetAddress VARCHAR(120) NOT NULL,
+    providerCity VARCHAR(100) NOT NULL,
+    providerState CHAR(2) NOT NULL,
+    providerZipCode CHAR(5) NOT NULL
+    );
 
 -- dRgKey
 -- dRgDescription

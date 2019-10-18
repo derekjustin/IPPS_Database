@@ -48,7 +48,6 @@ class ipps:
         # Copy initial columns over to the frame that are already in 2nd NF
         SecondNF_df = raw_df.loc[:,['Provider Id',
                                     'Provider Name',
-                                    'Provider Name', 
                                     'Provider Street Address', 
                                     'Provider City', 
                                     'Provider State',
@@ -82,7 +81,15 @@ class ipps:
                 # rubric of 3rd NF
         return SecondNF_df
 
-
+    def getProvidersDF(raw_df):        
+        providers_df = raw_df.loc[:,['providerId',
+                                    'providerName',
+                                    'providerStreetAddress', 
+                                    'providerCity', 
+                                    'providerState',
+                                    'providerZipCode'
+                                    ]]
+        return providers_df
 
     def pushToSQL():
             server = 'localhost'
@@ -92,9 +99,11 @@ class ipps:
             password = '12345'
     
             # Get 2nd NF dataFrame
-            data = ipps.loadCSVtoDf()
+            raw_df = ipps.loadCSVtoDf()
             # connects to the database
 #            conn = pymysql.connect(host = server, user = user, password = password, db = database)
+            
+            providers = ipps.getProvidersDF(raw_df)
             
             # Create a engine to connect to mySQL
             engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}".format(user="ipps",
@@ -103,7 +112,9 @@ class ipps:
             
             
             # Create a SQL table named Providers from the 2ndNF pandas dataFrame
-            data.to_sql('Providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+            raw_df.to_sql('raw_df', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+
+            providers.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
             
             #TODO: Not Sure if I have to close the connection of the engine i.e engine.close()
             
