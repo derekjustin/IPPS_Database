@@ -103,7 +103,7 @@ class ipps:
             
             
             # Create a SQL table named Providers from the 2ndNF pandas dataFrame
-            data.to_sql('Providers', con = engine, if_exists = 'append', chunksize = 1000)
+            data.to_sql('Providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
             
             #TODO: Not Sure if I have to close the connection of the engine i.e engine.close()
             
