@@ -112,6 +112,7 @@ class ipps:
         provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
              
         # Push dataframes to SQL tables
+        # TODO: REMOVE raw_df.to_sql, the table is only for developing reference
         raw_df.to_sql('raw_df', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
         providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
         drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)

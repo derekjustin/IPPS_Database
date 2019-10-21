@@ -1,12 +1,15 @@
--- Derek Holsapple
--- Justin Strelka
+-- AUTHORS: Derek Holsapple, Justin Strelka
+-- DATE: 10/20/2019
+-- PROJECT: IPPS_Database
 
-CREATE DATABASE ipps;
+-- CREATE DATABASE
+CREATE DATABASE IF NOT EXISTS ipps;
 
+-- SELECT DATABASE TO OPERATE ON
 USE ipps;
 
--- We need to 3rd normalize the 12 csv columns and create tables
-CREATE TABLE raw_df (
+-- TODO: REMOVE raw_df table as it is only for reference
+CREATE TABLE IF NOT EXISTS raw_df (
     providerID INT NOT NULL, 
     providerName VARCHAR(100) NOT NULL, 
     providerStreetAddress VARCHAR(120) NOT NULL,
@@ -23,7 +26,8 @@ CREATE TABLE raw_df (
     referralRegionDescription VARCHAR(120) NOT NULL
     );
 
-CREATE TABLE providers (
+-- CREATE providers TABLE
+CREATE TABLE IF NOT EXISTS providers (
     providerID INT PRIMARY KEY NOT NULL, 
     providerName VARCHAR(100) NOT NULL, 
     providerStreetAddress VARCHAR(120) NOT NULL,
@@ -34,12 +38,14 @@ CREATE TABLE providers (
     referralRegionDescription VARCHAR(120) NOT NULL
     );
 
-CREATE TABLE drg (
+-- CREATE drg TABLE
+CREATE TABLE IF NOT EXISTS drg (
     dRgKey INT PRIMARY KEY NOT NULL,
     dRgDescription VARCHAR(120) NOT NULL
     );
 
-CREATE TABLE ProviderCondCoverage (
+-- CREATE proivercondcoverage TABLE
+CREATE TABLE IF NOT EXISTS providercondcoverage (
     providerID INT NOT NULL, 
     dRgKey INT NOT NULL,
     totalDischarges INT NOT NULL,
@@ -51,15 +57,8 @@ CREATE TABLE ProviderCondCoverage (
     FOREIGN KEY (dRgKey) REFERENCES drg(dRgKey)
     );
 
--- dRgKey
--- dRgDescription
-
--- referralRegionState 
--- hospitalReferralRegionDescription
-
-
--- create users
+-- CREATE USERS
 CREATE USER IF NOT EXISTS 'ipps' IDENTIFIED BY '12345';
 
--- Give total access to ipps
+-- GIVE ALL PRIVILEGES TO ipps USER
 GRANT ALL PRIVILEGES ON ipps.* TO 'ipps';
