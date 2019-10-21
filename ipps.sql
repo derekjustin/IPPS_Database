@@ -1,7 +1,6 @@
 -- Derek Holsapple
 -- Justin Strelka
 
-
 CREATE DATABASE ipps;
 
 USE ipps;

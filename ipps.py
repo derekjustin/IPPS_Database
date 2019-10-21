@@ -1,3 +1,9 @@
+'''
+Authors: Derek Holsapple, Justin Strelka
+Date: 10/20/2019
+Project: IPPS_Database
+'''
+
 import pymysql
 import os
 from glob import glob
@@ -5,47 +11,25 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 class ipps:
-
-    '''
-    getCSVfilefromCwD()
-    
-    Locate the current working directory.  Make a list of all the csv files withing the current working directory
-    
-
-    return    list:  List of strings containing the path of csv files
-    '''
     
     def getCSVfilefromCwD():
-        
-        # Find the current working directory 
+        # Get current working directory from os.
         PATH = os.getcwd()   
         EXT = "*.csv"
         
-        # List of all csv files
+        # Create file array of all .csv files in directory
         all_csv_files = [file
             for path, subdir, files in os.walk(PATH)
             for file in glob(os.path.join(path, EXT))]
         
         return all_csv_files
     
-    
-    '''
-    loadCSVtoDf( path )
-    
-    Create a pandas dataframe from the csv file
-    
-    
-    return    Dataframe:  Dataframe of the first csv from the current working directory
-    '''
-    
     def loadCSVtoDf():
-        
-        # Get the list of all CSVs from current working directory
+        # Get csv list and create raw_input table
         csvList = ipps.getCSVfilefromCwD()
-
         raw_input = pd.read_csv( csvList[0] ) 
-
-        # Copy initial columns over to the frame that are already in 2nd NF
+        
+        # Place raw_input into raw_df dataframe
         raw_df = raw_input.loc[:,['Provider Id',
                                     'Provider Name',
                                     'Provider Street Address', 
@@ -71,16 +55,12 @@ class ipps:
                                       'Average Medicare Payments':'averageMedicarePayments'
                                       }, inplace = True)
         
-        # Split the selected columns to meet 2nd normal form                     
+        # Split the selected columns to meet 2nd normal form and place in raw_df datframe                    
         raw_df[['dRgKey','dRgDescription']] = raw_input['DRG Definition'].str.split(' - ',expand=True)
         raw_df[['referralRegionState','referralRegionDescription']] = raw_input['Hospital Referral Region Description'].str.split(' - ',expand=True)
-
-        #TODO: We need to break apart the pandas dataframe into separate 
-                # columns determined by the 3rd normal form.  I think we should 
-                # create separate functions to break apart the frame to meet our 
-                # rubric of 3rd NF
         return raw_df
 
+    # Create porvidersDF dataframe to become providers SQL table without duplicates
     def getProvidersDF(raw_df):        
         providers_df = raw_df.loc[:,['providerId',
                                     'providerName',
@@ -93,78 +73,60 @@ class ipps:
                                     ]]
         return providers_df.drop_duplicates()
 
+    # Create drg_df dataframe to become drg SQL table without duplicates
     def getdRgDF(raw_df):
         drg_df = raw_df.loc[:,['dRgKey',
                                 'dRgDescription'
                                 ]]
         return drg_df.drop_duplicates()
 
+    # Create provider_cond_converage_df to become 
+    # providercondcoverage SQL table without duplicates
     def getProviderCondCoverage(raw_df):
-        provider_cond_coverage = raw_df.loc[:,['providerId',
+        provider_cond_coverage_df = raw_df.loc[:,['providerId',
                                                 'dRgKey',
                                                 'totalDischarges',
                                                 'averageCoveredCharges',
                                                 'averageTotalPayments',
                                                 'averageMedicarePayments'
                                                 ]]
-        return provider_cond_coverage.drop_duplicates()
+        return provider_cond_coverage_df.drop_duplicates()
 
+    # Driver to push dataframes into SQL tables
     def pushToSQL():
-            server = 'localhost'
-            database = 'ipps'
-            user = 'ipps'
-            #TODO: WE MAY NEED TO SAVE PW IN SOME OTHER FILE NEED TO ASK HIM THE QUESTION
-            password = '12345'
-    
-            # Get 2nd NF dataFrame
-            raw_df = ipps.loadCSVtoDf()            
-            providers_df = ipps.getProvidersDF(raw_df)
-            drg_df = ipps.getdRgDF(raw_df)
-            provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
-            
-            # Create a engine to connect to mySQL
-            engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}".format(user="ipps",
+        # User Credentials
+        server = 'localhost'
+        database = 'ipps'
+        user = 'ipps'
+        password = '12345'
+
+        # Create a engine to connect to mySQL
+        engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}".format(user="ipps",
                                pw="12345",
                                db="ipps")) 
-            
-            
-            # Create a SQL table named Providers from the 2ndNF pandas dataFrame
-            raw_df.to_sql('raw_df', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-            providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-            drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-            provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+    
+        # Get dataframes
+        raw_df = ipps.loadCSVtoDf()            
+        providers_df = ipps.getProvidersDF(raw_df)
+        drg_df = ipps.getdRgDF(raw_df)
+        provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
+             
+        # Push dataframes to SQL tables
+        raw_df.to_sql('raw_df', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+        providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+        drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+        provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
 
-            
-            #TODO: Not Sure if I have to close the connection of the engine i.e engine.close()
-            
-            if (engine):
-                print('Connection to MySQL database', database, 'was successful!')
-    
-            
-            #GOOD STUFF TO KEEP
-    
-            # new row
-            #cursor = conn.cursor()
-            #sql = 'INSERT INTO Employees VALUES (%s, %s, %s)'
-            #cursor.execute(sql, (4, 'Jose Caipirinha', 65000))
-            #conn.commit()
-    
-    
-            # run a simple query
-            #sql = 'SELECT id, name, sal FROM Employees'
-            #cursor = conn.cursor()
-            #cursor.execute(sql)
-            #for id, name, sal in cursor:
-            #    print(id, name, sal)
-    
-    
-    
-            
-            # closes the connection
-            print('Bye!')
-            #engine.close()
+        # Notify user if MySQL connection was a success.    
+        if (engine):
+            print('Connection to MySQL database', database, 'was successful!')
+        else:
+            print('Connection to MySQL database', database, 'was NOT successful!')
 
+        # close the connection
+        engine.dispose()
 
+# Call Push to SQL driver
 ipps.pushToSQL()
 
 
