@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS providercondcoverage (
     FOREIGN KEY (dRgKey) REFERENCES drg(dRgKey)
     );
     
--- CREATE HospitalReferral TABLE
+-- CREATE hospitalReferral TABLE
 CREATE TABLE IF NOT EXISTS hospitalReferral (
     hospID INT NOT NULL, 
     referralRegionState CHAR(2) NOT NULL,

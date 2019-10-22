@@ -140,6 +140,8 @@ class ipps:
         providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
         drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
         provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+        hospital_referral_df.to_sql('hospitalReferral', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+    
     
         # Notify user if MySQL connection was a success.    
         if (engine):
