@@ -70,11 +70,17 @@ class ipps:
         raw_df[['referralRegionState','referralRegionDescription']] = raw_input['Hospital Referral Region Description'].str.split(' - ',expand=True)
         return raw_df
 
-
-
-
-
-
+    # Create getHospitalReferralDF dataframe to become hospitals in SQL table without duplicates
+    def getHospitalReferralDF(raw_df):        
+        hospitalReferral_df = raw_df.loc[:,['referralRegionState',
+                                     'referralRegionDescription'
+                                    ]]
+        hospitalReferral_df = hospitalReferral_df.drop_duplicates()
+        #Create a key hospID for this frame
+        hospitalReferral_df['hospId'] = hospitalReferral_df.groupby(['referralRegionState',
+                                                 'referralRegionDescription']).ngroup()
+        
+        return hospitalReferral_df
 
 
     # Create porvidersDF dataframe to become providers SQL table without duplicates
