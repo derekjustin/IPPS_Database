@@ -16,8 +16,6 @@ CREATE TABLE IF NOT EXISTS providers (
     providerCity VARCHAR(100) NOT NULL,
     providerState CHAR(2) NOT NULL,
     providerZipCode INT NOT NULL,
-    referralRegionState CHAR(2) NOT NULL,
-    referralRegionDescription VARCHAR(100) NOT NULL,
     UNIQUE KEY (providerID)
     );
 
@@ -40,6 +38,15 @@ CREATE TABLE IF NOT EXISTS providercondcoverage (
     UNIQUE KEY (providerID,dRgKey),
     FOREIGN KEY (providerID) REFERENCES providers(providerID),
     FOREIGN KEY (dRgKey) REFERENCES drg(dRgKey)
+    );
+    
+-- CREATE HospitalReferral TABLE
+CREATE TABLE IF NOT EXISTS hospitalReferral (
+    hospID INT NOT NULL, 
+    referralRegionState CHAR(2) NOT NULL,
+    referralRegionDescription VARCHAR(100) NOT NULL,
+    UNIQUE KEY (hospID)
+
     );
 
 -- CREATE USERS
