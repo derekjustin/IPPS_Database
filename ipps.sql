@@ -17,13 +17,15 @@ CREATE TABLE IF NOT EXISTS providers (
     providerState CHAR(2) NOT NULL,
     providerZipCode INT NOT NULL,
     referralRegionState CHAR(2) NOT NULL,
-    referralRegionDescription VARCHAR(100) NOT NULL
+    referralRegionDescription VARCHAR(100) NOT NULL,
+    UNIQUE KEY (providerID)
     );
 
 -- CREATE drg TABLE
 CREATE TABLE IF NOT EXISTS drg (
     dRgKey INT PRIMARY KEY NOT NULL,
-    dRgDescription VARCHAR(100) NOT NULL
+    dRgDescription VARCHAR(100) NOT NULL,
+    UNIQUE KEY (dRgKey)
     );
 
 -- CREATE proivercondcoverage TABLE
@@ -35,6 +37,7 @@ CREATE TABLE IF NOT EXISTS providercondcoverage (
     averageTotalPayments DECIMAL(8,2) NOT NULL,
     averageMedicarePayments DECIMAL(8,2) NOT NULL,
     PRIMARY KEY (providerID,dRgKey),
+    UNIQUE KEY (providerID,dRgKey),
     FOREIGN KEY (providerID) REFERENCES providers(providerID),
     FOREIGN KEY (dRgKey) REFERENCES drg(dRgKey)
     );
