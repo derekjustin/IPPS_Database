@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS providers (
     providerStreetAddress VARCHAR(120) NOT NULL,
     providerCity VARCHAR(100) NOT NULL,
     providerState CHAR(2) NOT NULL,
-    providerZipCode CHAR(5) NOT NULL,
+    providerZipCode INT NOT NULL,
     referralRegionState CHAR(5) NOT NULL,
     referralRegionDescription VARCHAR(120) NOT NULL
     );
@@ -31,9 +31,9 @@ CREATE TABLE IF NOT EXISTS providercondcoverage (
     providerID INT NOT NULL, 
     dRgKey INT NOT NULL,
     totalDischarges INT NOT NULL,
-    averageCoveredCharges DECIMAL(20,3) NOT NULL,
-    averageTotalPayments DECIMAL(20,3) NOT NULL,
-    averageMedicarePayments DECIMAL(20,3) NOT NULL,
+    averageCoveredCharges DECIMAL(8,2) NOT NULL,
+    averageTotalPayments DECIMAL(8,2) NOT NULL,
+    averageMedicarePayments DECIMAL(8,2) NOT NULL,
     PRIMARY KEY (providerID,dRgKey),
     FOREIGN KEY (providerID) REFERENCES providers(providerID),
     FOREIGN KEY (dRgKey) REFERENCES drg(dRgKey)

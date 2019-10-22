@@ -27,7 +27,17 @@ class ipps:
     def loadCSVtoDf():
         # Get csv list and create raw_input table
         csvList = ipps.getCSVfilefromCwD()
-        raw_input = pd.read_csv( csvList[0] ) 
+        raw_input = pd.read_csv( csvList[0], 
+        dtype={'Provider Id': int,
+                'Provider Name': str,
+                'Provider Street Address': str,
+                'Provider City': str,
+                'Provider State': str,
+                'Provider Zip Code': int,
+                ' Total Discharges ': int,
+                ' Average Covered Charges ': float,
+                ' Average Total Payments ': float,
+                'Average Medicare Payments': float}) 
         
         # Place raw_input into raw_df dataframe
         raw_df = raw_input.loc[:,['Provider Id',
