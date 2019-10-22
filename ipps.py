@@ -55,7 +55,7 @@ class ipps:
                                       'Average Medicare Payments':'averageMedicarePayments'
                                       }, inplace = True)
         
-        # Split the selected columns to meet 2nd normal form and place in raw_df datframe                    
+        # Split the selected columns to meet 2nd normal form and place in raw_df dataframe                    
         raw_df[['dRgKey','dRgDescription']] = raw_input['DRG Definition'].str.split(' - ',expand=True)
         raw_df[['referralRegionState','referralRegionDescription']] = raw_input['Hospital Referral Region Description'].str.split(' - ',expand=True)
         return raw_df
@@ -95,32 +95,32 @@ class ipps:
     # Driver to push dataframes into SQL tables
     def pushToSQL():
         # User Credentials
-        server = 'localhost'
+        server = 'mysql+pymysql://{user}:{pw}@localhost/{db}'
         database = 'ipps'
         user = 'ipps'
         password = '12345'
 
         # Create a engine to connect to mySQL
-        engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}".format(user="ipps",
-                               pw="12345",
-                               db="ipps")) 
-    
-        # Get dataframes
-        raw_df = ipps.loadCSVtoDf()            
-        providers_df = ipps.getProvidersDF(raw_df)
-        drg_df = ipps.getdRgDF(raw_df)
-        provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
-             
-        # Push dataframes to SQL tables
-        # TODO: REMOVE raw_df.to_sql, the table is only for developing reference
-        raw_df.to_sql('raw_df', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-        providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-        drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-        provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-
+        engine = create_engine(server.format(user = user,
+                               pw = password,
+                               db = database)) 
         # Notify user if MySQL connection was a success.    
         if (engine):
-            print('Connection to MySQL database', database, 'was successful!')
+            print('Connection to MySQL database', database, 'was successful!')    
+        # Get dataframes
+            raw_df = ipps.loadCSVtoDf()            
+            providers_df = ipps.getProvidersDF(raw_df)
+            drg_df = ipps.getdRgDF(raw_df)
+            provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
+                 
+            # Push dataframes to SQL tables
+            # TODO: REMOVE raw_df.to_sql, the table is only for developing reference
+            raw_df.to_sql('raw_df', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+            providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+            drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+            provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+    
+
         else:
             print('Connection to MySQL database', database, 'was NOT successful!')
 
