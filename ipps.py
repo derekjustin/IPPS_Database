@@ -68,18 +68,21 @@ class ipps:
         # Split the selected columns to meet 2nd normal form and place in raw_df dataframe                    
         raw_df[['dRgKey','dRgDescription']] = raw_input['DRG Definition'].str.split(' - ',expand=True)
         raw_df[['referralRegionState','referralRegionDescription']] = raw_input['Hospital Referral Region Description'].str.split(' - ',expand=True)
+        
+        #Create a key hospID for the referral region state and referral region description
+        raw_df['hospId'] = raw_df.groupby(['referralRegionState',
+                                                 'referralRegionDescription']).ngroup()
+        
         return raw_df
 
     # Create getHospitalReferralDF dataframe to become hospitals in SQL table without duplicates
     def getHospitalReferralDF(raw_df):        
-        hospitalReferral_df = raw_df.loc[:,['referralRegionState',
-                                     'referralRegionDescription'
-                                    ]]
+        hospitalReferral_df = raw_df.loc[:,['hospId',
+                                            'referralRegionState',
+                                            'referralRegionDescription'
+                                            ]]
         hospitalReferral_df = hospitalReferral_df.drop_duplicates()
-        #Create a key hospID for this frame
-        hospitalReferral_df['hospId'] = hospitalReferral_df.groupby(['referralRegionState',
-                                                 'referralRegionDescription']).ngroup()
-        
+
         return hospitalReferral_df
 
 
@@ -131,6 +134,7 @@ class ipps:
         providers_df = ipps.getProvidersDF(raw_df)
         drg_df = ipps.getdRgDF(raw_df)
         provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
+        hospital_referral_df = ipps.getHospitalReferralDF(raw_df)
                  
         # Push dataframes to SQL tables
         providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
