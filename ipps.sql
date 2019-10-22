@@ -16,14 +16,14 @@ CREATE TABLE IF NOT EXISTS providers (
     providerCity VARCHAR(100) NOT NULL,
     providerState CHAR(2) NOT NULL,
     providerZipCode INT NOT NULL,
-    referralRegionState CHAR(5) NOT NULL,
-    referralRegionDescription VARCHAR(120) NOT NULL
+    referralRegionState CHAR(2) NOT NULL,
+    referralRegionDescription VARCHAR(100) NOT NULL
     );
 
 -- CREATE drg TABLE
 CREATE TABLE IF NOT EXISTS drg (
     dRgKey INT PRIMARY KEY NOT NULL,
-    dRgDescription VARCHAR(120) NOT NULL
+    dRgDescription VARCHAR(100) NOT NULL
     );
 
 -- CREATE proivercondcoverage TABLE
