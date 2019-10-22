@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS providercondcoverage (
     providerID INT NOT NULL, 
     dRgKey INT NOT NULL,
     totalDischarges INT NOT NULL,
-    averageCoveredCharges DECIMAL(8,2) NOT NULL,
+    averageCoveredCharges DECIMAL(9,2) NOT NULL,
     averageTotalPayments DECIMAL(8,2) NOT NULL,
     averageMedicarePayments DECIMAL(8,2) NOT NULL,
     PRIMARY KEY (providerID,dRgKey),
