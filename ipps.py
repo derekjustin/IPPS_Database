@@ -4,7 +4,7 @@ Date: 10/20/2019
 Project: IPPS_Database
 '''
 
-import pymysql
+#import pymysql
 import os
 from glob import glob
 import pandas as pd
@@ -70,6 +70,13 @@ class ipps:
         raw_df[['referralRegionState','referralRegionDescription']] = raw_input['Hospital Referral Region Description'].str.split(' - ',expand=True)
         return raw_df
 
+
+
+
+
+
+
+
     # Create porvidersDF dataframe to become providers SQL table without duplicates
     def getProvidersDF(raw_df):        
         providers_df = raw_df.loc[:,['providerId',
@@ -77,9 +84,7 @@ class ipps:
                                     'providerStreetAddress', 
                                     'providerCity', 
                                     'providerState',
-                                    'providerZipCode',
-                                    'referralRegionState',
-                                    'referralRegionDescription'
+                                    'providerZipCode'
                                     ]]
         return providers_df.drop_duplicates()
 
