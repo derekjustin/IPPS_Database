@@ -104,23 +104,21 @@ class ipps:
         engine = create_engine(server.format(user = user,
                                pw = password,
                                db = database)) 
+
+        # Get dataframes
+        raw_df = ipps.loadCSVtoDf()            
+        providers_df = ipps.getProvidersDF(raw_df)
+        drg_df = ipps.getdRgDF(raw_df)
+        provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
+                 
+        # Push dataframes to SQL tables
+        providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+        drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+        provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+    
         # Notify user if MySQL connection was a success.    
         if (engine):
             print('Connection to MySQL database', database, 'was successful!')    
-        # Get dataframes
-            raw_df = ipps.loadCSVtoDf()            
-            providers_df = ipps.getProvidersDF(raw_df)
-            drg_df = ipps.getdRgDF(raw_df)
-            provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
-                 
-            # Push dataframes to SQL tables
-            providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-            drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-            provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-    
-
-        else:
-            print('Connection to MySQL database', database, 'was NOT successful!')
 
         # close the connection
         engine.dispose()
