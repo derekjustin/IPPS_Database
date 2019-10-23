@@ -70,20 +70,20 @@ class ipps:
         raw_df[['referralRegionState','referralRegionDescription']] = raw_input['Hospital Referral Region Description'].str.split(' - ',expand=True)
         
         #Create a key hospID for the referral region state and referral region description
-        raw_df['hospId'] = raw_df.groupby(['referralRegionState',
+        raw_df['referralRegionId'] = raw_df.groupby(['referralRegionState',
                                                  'referralRegionDescription']).ngroup()
         
         return raw_df
 
     # Create getHospitalReferralDF dataframe to become hospitals in SQL table without duplicates
     def getHospitalReferralDF(raw_df):        
-        hospitalReferral_df = raw_df.loc[:,['hospId',
+        hospitalReferral_df = raw_df.loc[:,['referralRegionId',
                                             'referralRegionState',
                                             'referralRegionDescription'
                                             ]]
         hospitalReferral_df = hospitalReferral_df.drop_duplicates()
 
-        return hospitalReferral_df
+        return hospitalReferral_df.drop_duplicates()
 
 
     # Create porvidersDF dataframe to become providers SQL table without duplicates
@@ -93,7 +93,8 @@ class ipps:
                                     'providerStreetAddress', 
                                     'providerCity', 
                                     'providerState',
-                                    'providerZipCode'
+                                    'providerZipCode',
+                                    'referralRegionId'
                                     ]]
         return providers_df.drop_duplicates()
 
@@ -137,11 +138,10 @@ class ipps:
         hospital_referral_df = ipps.getHospitalReferralDF(raw_df)
                  
         # Push dataframes to SQL tables
+        hospital_referral_df.to_sql('hrr', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
         providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
         drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-        provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-        hospital_referral_df.to_sql('hospitalReferral', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-    
+        provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)    
     
         # Notify user if MySQL connection was a success.    
         if (engine):

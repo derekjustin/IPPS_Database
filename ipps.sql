@@ -8,6 +8,14 @@ CREATE DATABASE IF NOT EXISTS ipps;
 -- SELECT DATABASE TO OPERATE ON
 USE ipps;
 
+-- CREATE hrr TABLE
+CREATE TABLE IF NOT EXISTS hrr (
+    referralRegionID INT PRIMARY KEY NOT NULL, 
+    referralRegionState CHAR(2) NOT NULL,
+    referralRegionDescription VARCHAR(100) NOT NULL,
+    UNIQUE KEY (referralRegionID)
+    );
+
 -- CREATE providers TABLE
 CREATE TABLE IF NOT EXISTS providers (
     providerID INT PRIMARY KEY NOT NULL, 
@@ -16,6 +24,8 @@ CREATE TABLE IF NOT EXISTS providers (
     providerCity VARCHAR(100) NOT NULL,
     providerState CHAR(2) NOT NULL,
     providerZipCode INT NOT NULL,
+    referralRegionID INT NOT NULL,
+    FOREIGN KEY (referralRegionID) REFERENCES hrr (referralRegionID),
     UNIQUE KEY (providerID)
     );
 
@@ -38,15 +48,6 @@ CREATE TABLE IF NOT EXISTS providercondcoverage (
     UNIQUE KEY (providerID,dRgKey),
     FOREIGN KEY (providerID) REFERENCES providers(providerID),
     FOREIGN KEY (dRgKey) REFERENCES drg(dRgKey)
-    );
-    
--- CREATE hospitalReferral TABLE
-CREATE TABLE IF NOT EXISTS hospitalReferral (
-    hospID INT NOT NULL, 
-    referralRegionState CHAR(2) NOT NULL,
-    referralRegionDescription VARCHAR(100) NOT NULL,
-    UNIQUE KEY (hospID)
-
     );
 
 -- CREATE USERS
