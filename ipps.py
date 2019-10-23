@@ -51,6 +51,7 @@ class ipps:
                                     ' Average Total Payments ',
                                     'Average Medicare Payments'
                                     ]]
+
         # Clean the column names and eliminate white spaces from original import
         # Match the column names of the sql table names    
         raw_df.rename(columns = {'Provider Id' :'providerId', 
@@ -76,14 +77,13 @@ class ipps:
         return raw_df
 
     # Create getHospitalReferralDF dataframe to become hospitals in SQL table without duplicates
-    def getHospitalReferralDF(raw_df):        
-        hospitalReferral_df = raw_df.loc[:,['referralRegionId',
+    def getReferralRegionDF(raw_df):        
+        referral_region_df = raw_df.loc[:,['referralRegionId',
                                             'referralRegionState',
                                             'referralRegionDescription'
                                             ]]
-        hospitalReferral_df = hospitalReferral_df.drop_duplicates()
 
-        return hospitalReferral_df.drop_duplicates()
+        return referral_region_df.drop_duplicates()
 
 
     # Create porvidersDF dataframe to become providers SQL table without duplicates
@@ -135,10 +135,10 @@ class ipps:
         providers_df = ipps.getProvidersDF(raw_df)
         drg_df = ipps.getdRgDF(raw_df)
         provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
-        hospital_referral_df = ipps.getHospitalReferralDF(raw_df)
+        referral_region_df = ipps.getReferralRegionDF(raw_df)
                  
         # Push dataframes to SQL tables
-        hospital_referral_df.to_sql('hrr', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+        referral_region_df.to_sql('hrr', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
         providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
         drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
         provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)    
