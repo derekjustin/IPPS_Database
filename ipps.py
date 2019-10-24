@@ -10,6 +10,11 @@ from glob import glob
 import pandas as pd
 from sqlalchemy import create_engine
 
+USER = os.getenv("USER")
+PASSWORD = os.getenv("PASSWORD")
+SERVER = "localhost"
+DATABASE = "ipps"
+
 class ipps:
     
     def getCSVfilefromCwD():
@@ -118,16 +123,18 @@ class ipps:
         return provider_cond_coverage_df.drop_duplicates()
 
     # Driver to push dataframes into SQL tables
-    def pushToSQL():
+    def pushToSQL(SERVER,DATABASE,USER,PASSWORD):
         # User Credentials
-        server = 'mysql+pymysql://{user}:{pw}@localhost/{db}'
-        database = 'ipps'
-        user = 'ipps'
-        password = '12345'
+        serverStr = 'mysql+pymysql://{user}:{pw}@{svr}/{db}'
+        server = SERVER
+        database = DATABASE
+        user = USER
+        password = PASSWORD
 
         # Create a engine to connect to mySQL
-        engine = create_engine(server.format(user = user,
+        engine = create_engine(serverStr.format(user = user,
                                pw = password,
+                               svr = server,
                                db = database)) 
 
         # Get dataframes
@@ -151,7 +158,7 @@ class ipps:
         engine.dispose()
 
 # Call Push to SQL driver
-ipps.pushToSQL()
+ipps.pushToSQL(SERVER,DATABASE,USER,PASSWORD)
 
 
 
