@@ -17,6 +17,14 @@ DATABASE = "ipps"
 
 class ipps:
     
+    
+    '''
+    getCSVfilefromCwD()
+    
+    Create a list of all the csv files from the current working directory.
+    
+    return  all_csv_files    -list of the path of csv files 
+    '''
     def getCSVfilefromCwD():
         # Get current working directory from os.
         PATH = os.getcwd()   
