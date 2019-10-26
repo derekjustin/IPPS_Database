@@ -18,7 +18,6 @@ DATABASE = "ipps"
 class ipps:
     
     
-    
     def getCSVfilefromCwD():
             
         '''
@@ -26,7 +25,7 @@ class ipps:
         
         Create a list of all the csv files from the current working directory.
         
-        @return  all_csv_files    -list, paths of csv files 
+        @return  all_csv_files    -list:str, paths of csv files 
         '''
         
         # Get current working directory from os.
@@ -39,8 +38,7 @@ class ipps:
             for file in glob(os.path.join(path, EXT))]
         
         return all_csv_files
-    
-    
+       
 
     def loadCSVtoDf():
         
@@ -49,11 +47,12 @@ class ipps:
         
         Create a dataframe of the IPPS dataset into 2nd normalized form.
         
-        @return  raw_df    -dataframe, 2nd normalized form of IPPS dataset 
+        @return  ipps_2NF_df    -dataframe, 2nd normalized form of IPPS dataset 
         '''
         
+        # Create raw_df from CSV inputs, assign datatypes to columns
         csvList = ipps.getCSVfilefromCwD()
-        raw_input = pd.read_csv( csvList[0], 
+        raw_df = pd.read_csv( csvList[0], 
             dtype={'Provider Id': int,
                     'Provider Name': str,
                     'Provider Street Address': str,
@@ -65,8 +64,7 @@ class ipps:
                     ' Average Total Payments ': float,
                     'Average Medicare Payments': float}) 
         
-        # Place raw_input into raw_df dataframe
-        raw_df = raw_input.loc[:,['Provider Id',
+        ipps_2NF_df = raw_df.loc[:,['Provider Id',
                                     'Provider Name',
                                     'Provider Street Address', 
                                     'Provider City', 
@@ -79,8 +77,8 @@ class ipps:
                                     ]]
 
         # Clean the column names and eliminate white spaces from original import
-        # Match the column names of the sql table names    
-        raw_df.rename(columns = {'Provider Id' :'providerId', 
+        # Match the column names to sql DB attribute names    
+        ipps_2NF_df.rename(columns = {'Provider Id' :'providerId', 
                                       'Provider Name':'providerName', 
                                       'Provider Street Address':'providerStreetAddress',
                                       'Provider City':'providerCity',
@@ -92,21 +90,21 @@ class ipps:
                                       'Average Medicare Payments':'averageMedicarePayments'
                                       }, inplace = True)
         
-        # Split the selected columns to meet 2nd normal form and place in raw_df dataframe                    
-        raw_df[['dRgKey','dRgDescription']] = \
-                raw_input['DRG Definition'].str.split(' - ',expand=True)
-        raw_df[['referralRegionState','referralRegionDescription']] = \
-                raw_input['Hospital Referral Region Description'].str.split(' - ',expand=True)
+        # Split the selected columns to meet 2nd normal form and place in ipps_2NF_df dataframe                    
+        ipps_2NF_df[['dRgKey','dRgDescription']] = \
+                raw_df['DRG Definition'].str.split(' - ',expand=True)
+        ipps_2NF_df[['referralRegionState','referralRegionDescription']] = \
+                raw_df['Hospital Referral Region Description'].str.split(' - ',expand=True)
         
         #Create a key referralRegionId for the referral region state and referral region description
-        raw_df['referralRegionId'] = raw_df.groupby(['referralRegionState',
+        ipps_2NF_df['referralRegionId'] = ipps_2NF_df.groupby(['referralRegionState',
                                                  'referralRegionDescription']).ngroup()
         
-        return raw_df
+        return ipps_2NF_df
     
     
     
-    def getReferralRegionDF(raw_df):  
+    def get3NFReferralRegionDF(ipps_2NF_df):  
         
         '''
         HELPER FUNCTION
@@ -114,19 +112,19 @@ class ipps:
         Create dataframe to match hrr table in SQL.
         This will be one table of 3rd normalized form
         
-        @return  referral_region_df    -dataframe, 3rd NF for table hrr
+        @return  referral_region_3NF_df    -dataframe, 3rd NF for table hrr
         '''
         
-        referral_region_df = raw_df.loc[:,['referralRegionId',
+        referral_region_3NF_df = ipps_2NF_df.loc[:,['referralRegionId',
                                             'referralRegionState',
                                             'referralRegionDescription'
                                             ]]
 
-        return referral_region_df.drop_duplicates()
+        return referral_region_3NF_df.drop_duplicates()
 
 
 
-    def getProvidersDF(raw_df):
+    def get3NFProvidersDF(ipps_2NF_df):
         
         '''
         HELPER FUNCTION
@@ -134,10 +132,10 @@ class ipps:
         Create dataframe to match providers table in SQL.
         This will be one table of 3rd normalized form
         
-        @return  providers_df    -dataframe, 3rd NF for table providers
+        @return  providers_3NF_df    -dataframe, 3rd NF for table providers
         '''  
         
-        providers_df = raw_df.loc[:,['providerId',
+        providers_3NF_df = ipps_2NF_df.loc[:,['providerId',
                                     'providerName',
                                     'providerStreetAddress', 
                                     'providerCity', 
@@ -145,11 +143,11 @@ class ipps:
                                     'providerZipCode',
                                     'referralRegionId'
                                     ]]
-        return providers_df.drop_duplicates()
+        return providers_3NF_df.drop_duplicates()
 
 
 
-    def getdRgDF(raw_df):
+    def get3NFdRgDF(ipps_2NF_df):
         
         '''
         HELPER FUNCTION
@@ -157,17 +155,16 @@ class ipps:
         Create dataframe to match drg table in SQL.
         This will be one table of 3rd normalized form
         
-        @return  drg_df    -dataframe, 3rd NF for table drg 
+        @return  drg_3NF_df    -dataframe, 3rd NF for table drg 
         '''
         
-        drg_df = raw_df.loc[:,['dRgKey',
+        drg_3NF_df = ipps_2NF_df.loc[:,['dRgKey',
                                 'dRgDescription'
                                 ]]
-        return drg_df.drop_duplicates()
+        return drg_3NF_df.drop_duplicates()
 
-    # Create provider_cond_converage_df to become 
-    # providercondcoverage SQL table without duplicates
-    def getProviderCondCoverage(raw_df):
+
+    def get3NFProviderCondCoverage(ipps_2NF_df):
         
         '''
         HELPER FUNCTION
@@ -175,17 +172,17 @@ class ipps:
         Create dataframe to match providercondcoverage table in SQL.
         This will be one table of 3rd normalized form
         
-        @return  provider_cond_coverage_df    -dataframe, 3rd NF for table providercondcoverage 
+        @return  provider_cond_coverage_3NF_df    -dataframe, 3rd NF for table providercondcoverage 
         '''
         
-        provider_cond_coverage_df = raw_df.loc[:,['providerId',
+        provider_cond_coverage_3NF_df = ipps_2NF_df.loc[:,['providerId',
                                                 'dRgKey',
                                                 'totalDischarges',
                                                 'averageCoveredCharges',
                                                 'averageTotalPayments',
                                                 'averageMedicarePayments'
                                                 ]]
-        return provider_cond_coverage_df.drop_duplicates()
+        return provider_cond_coverage_3NF_df.drop_duplicates()
 
 
 
@@ -211,17 +208,17 @@ class ipps:
                                db = database)) 
 
         # Get dataframes
-        raw_df = ipps.loadCSVtoDf()            
-        providers_df = ipps.getProvidersDF(raw_df)
-        drg_df = ipps.getdRgDF(raw_df)
-        provider_cond_coverage_df = ipps.getProviderCondCoverage(raw_df)
-        referral_region_df = ipps.getReferralRegionDF(raw_df)
+        ipps_2NF_df = ipps.loadCSVtoDf()            
+        providers_3NF_df = ipps.get3NFProvidersDF(ipps_2NF_df)
+        drg_3NF_df = ipps.get3NFdRgDF(ipps_2NF_df)
+        provider_cond_coverage_3NF_df = ipps.get3NFProviderCondCoverage(ipps_2NF_df)
+        referral_region_3NF_df = ipps.get3NFReferralRegionDF(ipps_2NF_df)
                  
         # Push dataframes to SQL tables
-        referral_region_df.to_sql('hrr', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-        providers_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-        drg_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
-        provider_cond_coverage_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)    
+        referral_region_3NF_df.to_sql('hrr', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+        providers_3NF_df.to_sql('providers', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+        drg_3NF_df.to_sql('drg', con = engine, if_exists = 'append', chunksize = 1000 , index = False)
+        provider_cond_coverage_3NF_df.to_sql('providercondcoverage', con = engine, if_exists = 'append', chunksize = 1000 , index = False)    
     
         # Notify user if MySQL connection was a success.    
         if (engine):
