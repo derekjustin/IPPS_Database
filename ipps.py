@@ -1,15 +1,19 @@
 '''
 Authors: Derek Holsapple, Justin Strelka
-Date: 10/20/2019
+Date: 10/26/2019
 Project: IPPS_Database
+
+Description: Import ipps.csv data file. Use pandas 
+package to normalize csv data into 3rd normal form.
+Pass 3rd nomalized form dataframes to SQL database.
 '''
 
-#import pymysql
 import os
 from glob import glob
 import pandas as pd
 from sqlalchemy import create_engine
 
+# Database credentials
 USER = os.getenv("USER")
 PASSWORD = os.getenv("PASSWORD")
 SERVER = "localhost"
