@@ -48,7 +48,9 @@ CREATE TABLE IF NOT EXISTS providercondcoverage (
     averageTotalPayments DECIMAL(9,2) NOT NULL,
     averageMedicarePayments DECIMAL(9,2) NOT NULL,
     PRIMARY KEY (providerID,dRgKey),
-    UNIQUE KEY (providerID,dRgKey)
+    UNIQUE KEY (providerID,dRgKey),
+    FOREIGN KEY (providerID) REFERENCES providers(providerID),
+    FOREIGN KEY (dRgKey) REFERENCES drg(dRgKey)
     );
 
 -- CREATE USERS
