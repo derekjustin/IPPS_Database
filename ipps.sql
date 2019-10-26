@@ -1,6 +1,9 @@
 -- AUTHORS: Derek Holsapple, Justin Strelka
--- DATE: 10/20/2019
+-- DATE: 10/26/2019
 -- PROJECT: IPPS_Database
+
+-- DESCRIPTION: MySQL database definition 
+-- file for ipps dataset. 
 
 -- CREATE DATABASE
 CREATE DATABASE IF NOT EXISTS ipps;
@@ -42,12 +45,10 @@ CREATE TABLE IF NOT EXISTS providercondcoverage (
     dRgKey INT NOT NULL,
     totalDischarges INT NOT NULL,
     averageCoveredCharges DECIMAL(9,2) NOT NULL,
-    averageTotalPayments DECIMAL(8,2) NOT NULL,
-    averageMedicarePayments DECIMAL(8,2) NOT NULL,
+    averageTotalPayments DECIMAL(9,2) NOT NULL,
+    averageMedicarePayments DECIMAL(9,2) NOT NULL,
     PRIMARY KEY (providerID,dRgKey),
-    UNIQUE KEY (providerID,dRgKey),
-    FOREIGN KEY (providerID) REFERENCES providers(providerID),
-    FOREIGN KEY (dRgKey) REFERENCES drg(dRgKey)
+    UNIQUE KEY (providerID,dRgKey)
     );
 
 -- CREATE USERS
