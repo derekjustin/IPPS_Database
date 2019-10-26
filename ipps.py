@@ -18,14 +18,17 @@ DATABASE = "ipps"
 class ipps:
     
     
-    '''
-    getCSVfilefromCwD()
     
-    Create a list of all the csv files from the current working directory.
-    
-    return  all_csv_files    -list of the path of csv files 
-    '''
     def getCSVfilefromCwD():
+            
+        '''
+        HELPER FUNCTION
+        
+        Create a list of all the csv files from the current working directory.
+        
+        @return  all_csv_files    -list, paths of csv files 
+        '''
+        
         # Get current working directory from os.
         PATH = os.getcwd()   
         EXT = "*.csv"
@@ -37,20 +40,30 @@ class ipps:
         
         return all_csv_files
     
+    
+
     def loadCSVtoDf():
-        # Get csv list and create raw_input table
+        
+        '''
+        HELPER FUNCTION
+        
+        Create a dataframe of the IPPS dataset into 2nd normalized form.
+        
+        @return  raw_df    -dataframe, 2nd normalized form of IPPS dataset 
+        '''
+        
         csvList = ipps.getCSVfilefromCwD()
         raw_input = pd.read_csv( csvList[0], 
-        dtype={'Provider Id': int,
-                'Provider Name': str,
-                'Provider Street Address': str,
-                'Provider City': str,
-                'Provider State': str,
-                'Provider Zip Code': int,
-                ' Total Discharges ': int,
-                ' Average Covered Charges ': float,
-                ' Average Total Payments ': float,
-                'Average Medicare Payments': float}) 
+            dtype={'Provider Id': int,
+                    'Provider Name': str,
+                    'Provider Street Address': str,
+                    'Provider City': str,
+                    'Provider State': str,
+                    'Provider Zip Code': int,
+                    ' Total Discharges ': int,
+                    ' Average Covered Charges ': float,
+                    ' Average Total Payments ': float,
+                    'Average Medicare Payments': float}) 
         
         # Place raw_input into raw_df dataframe
         raw_df = raw_input.loc[:,['Provider Id',
@@ -80,17 +93,30 @@ class ipps:
                                       }, inplace = True)
         
         # Split the selected columns to meet 2nd normal form and place in raw_df dataframe                    
-        raw_df[['dRgKey','dRgDescription']] = raw_input['DRG Definition'].str.split(' - ',expand=True)
-        raw_df[['referralRegionState','referralRegionDescription']] = raw_input['Hospital Referral Region Description'].str.split(' - ',expand=True)
+        raw_df[['dRgKey','dRgDescription']] = \
+                raw_input['DRG Definition'].str.split(' - ',expand=True)
+        raw_df[['referralRegionState','referralRegionDescription']] = \
+                raw_input['Hospital Referral Region Description'].str.split(' - ',expand=True)
         
-        #Create a key hospID for the referral region state and referral region description
+        #Create a key referralRegionId for the referral region state and referral region description
         raw_df['referralRegionId'] = raw_df.groupby(['referralRegionState',
                                                  'referralRegionDescription']).ngroup()
         
         return raw_df
-
-    # Create getHospitalReferralDF dataframe to become hospitals in SQL table without duplicates
-    def getReferralRegionDF(raw_df):        
+    
+    
+    
+    def getReferralRegionDF(raw_df):  
+        
+        '''
+        HELPER FUNCTION
+        
+        Create dataframe to match hrr table in SQL.
+        This will be one table of 3rd normalized form
+        
+        @return  referral_region_df    -dataframe, 3rd NF for table hrr
+        '''
+        
         referral_region_df = raw_df.loc[:,['referralRegionId',
                                             'referralRegionState',
                                             'referralRegionDescription'
@@ -99,8 +125,18 @@ class ipps:
         return referral_region_df.drop_duplicates()
 
 
-    # Create porvidersDF dataframe to become providers SQL table without duplicates
-    def getProvidersDF(raw_df):        
+
+    def getProvidersDF(raw_df):
+        
+        '''
+        HELPER FUNCTION
+        
+        Create dataframe to match providers table in SQL.
+        This will be one table of 3rd normalized form
+        
+        @return  providers_df    -dataframe, 3rd NF for table providers
+        '''  
+        
         providers_df = raw_df.loc[:,['providerId',
                                     'providerName',
                                     'providerStreetAddress', 
@@ -111,8 +147,19 @@ class ipps:
                                     ]]
         return providers_df.drop_duplicates()
 
-    # Create drg_df dataframe to become drg SQL table without duplicates
+
+
     def getdRgDF(raw_df):
+        
+        '''
+        HELPER FUNCTION
+        
+        Create dataframe to match drg table in SQL.
+        This will be one table of 3rd normalized form
+        
+        @return  drg_df    -dataframe, 3rd NF for table drg 
+        '''
+        
         drg_df = raw_df.loc[:,['dRgKey',
                                 'dRgDescription'
                                 ]]
@@ -121,6 +168,16 @@ class ipps:
     # Create provider_cond_converage_df to become 
     # providercondcoverage SQL table without duplicates
     def getProviderCondCoverage(raw_df):
+        
+        '''
+        HELPER FUNCTION
+        
+        Create dataframe to match providercondcoverage table in SQL.
+        This will be one table of 3rd normalized form
+        
+        @return  provider_cond_coverage_df    -dataframe, 3rd NF for table providercondcoverage 
+        '''
+        
         provider_cond_coverage_df = raw_df.loc[:,['providerId',
                                                 'dRgKey',
                                                 'totalDischarges',
@@ -130,8 +187,16 @@ class ipps:
                                                 ]]
         return provider_cond_coverage_df.drop_duplicates()
 
-    # Driver to push dataframes into SQL tables
+
+
     def pushToSQL(SERVER,DATABASE,USER,PASSWORD):
+        
+        '''
+        EXECUTION FUNCTION
+        
+        Driver to push dataframes into existing database SQL tables
+        '''
+        
         # User Credentials
         serverStr = 'mysql+pymysql://{user}:{pw}@{svr}/{db}'
         server = SERVER
@@ -165,7 +230,7 @@ class ipps:
         # close the connection
         engine.dispose()
 
-# Call Push to SQL driver
+# Call push to SQL driver
 ipps.pushToSQL(SERVER,DATABASE,USER,PASSWORD)
 
 
